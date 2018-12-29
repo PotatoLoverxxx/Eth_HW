@@ -1,4 +1,4 @@
-contract Digitalpoint {
+contract dg {
     enum Actor{ Aviation, Bank, Market, Petroleum, Client }
     
     
