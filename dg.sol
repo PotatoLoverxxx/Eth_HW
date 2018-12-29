@@ -1,13 +1,14 @@
 contract Digitalpoint {
     enum Actor{ Aviation, Bank, Market, Petroleum, Client }
     
-    struct Aviation{
+    
+    struct Bank{
         bytes32 ID;
         bytes32 Name;
         uint pointbalance;
     }
     
-    struct Bank{
+    struct Aviation{
         bytes32 ID;
         bytes32 Name;
         uint pointbalance;
@@ -17,6 +18,12 @@ contract Digitalpoint {
         bytes32 ID;
         bytes32 Name;
         uint pointbalance;
+    }
+    
+     struct Commodity{
+        bytes32 ID;
+        bytes32 Name;
+        uint value;
     }
     
     struct Petroleum{
@@ -32,29 +39,14 @@ contract Digitalpoint {
         uint unionpaybalance;
     }
     
-    struct Commodity{
-        bytes32 ID;
-        bytes32 Name;
-        uint value;
-    }
-    
-    mapping(bytes32 => Aviation) aviationMap;
-    mapping(bytes32 => Bank) bankMap;
-    mapping(bytes32 => Market) marketMap;
-    mapping(bytes32 => Petroleum) petroleumMap;
     mapping(bytes32 => Client) clientMap;
     mapping(bytes32 => Commodity) commodityMap;
+    mapping(bytes32 => Aviation) aviationMap;
+    mapping(bytes32 => Market) marketMap;
+    mapping(bytes32 => Bank) bankMap;
+    mapping(bytes32 => Petroleum) petroleumMap;
     
-    function newAviation(bytes32 ID, bytes32 Name, uint pointbalance) returns (bool, bytes32){
-        Aviation aviation = aviationMap[ID];
-        if(aviation.ID != 0x0){
-            return (false,"this ID has been occupied!");
-        }
-        aviation.ID = ID;
-        aviation.Name = Name;
-        aviation.pointbalance = pointbalance;
-        return (true,"success");
-    }
+    
     
     function newBank(bytes32 ID, bytes32 Name, uint pointbalance) returns (bool, bytes32){
         Bank bank = bankMap[ID];
@@ -67,14 +59,14 @@ contract Digitalpoint {
         return (true,"success");
     }
     
-    function newMarket(bytes32 ID, bytes32 Name, uint pointbalance) returns (bool, bytes32){
-        Market market = marketMap[ID];
-        if(market.ID != 0x0){
+    function newAviation(bytes32 ID, bytes32 Name, uint pointbalance) returns (bool, bytes32){
+        Aviation aviation = aviationMap[ID];
+        if(aviation.ID != 0x0){
             return (false,"this ID has been occupied!");
         }
-        market.ID = ID;
-        market.Name = Name;
-        market.pointbalance = pointbalance;
+        aviation.ID = ID;
+        aviation.Name = Name;
+        aviation.pointbalance = pointbalance;
         return (true,"success");
     }
     
@@ -88,15 +80,15 @@ contract Digitalpoint {
         petroleum.pointbalance = pointbalance;
         return (true,"success");
     }
-    
-    function newCommodity(bytes32 ID, bytes32 Name, uint value) returns (bool, bytes32){
-        Commodity commodity = commodityMap[ID];
-        if(commodity.ID != 0x0){
+     
+    function newMarket(bytes32 ID, bytes32 Name, uint pointbalance) returns (bool, bytes32){
+        Market market = marketMap[ID];
+        if(market.ID != 0x0){
             return (false,"this ID has been occupied!");
         }
-        commodity.ID = ID;
-        commodity.Name = Name;
-        commodity.value = value;
+        market.ID = ID;
+        market.Name = Name;
+        market.pointbalance = pointbalance;
         return (true,"success");
     }
     
@@ -112,16 +104,27 @@ contract Digitalpoint {
         return (true,"success");
     }
     
+    function newCommodity(bytes32 ID, bytes32 Name, uint value) returns (bool, bytes32){
+        Commodity commodity = commodityMap[ID];
+        if(commodity.ID != 0x0){
+            return (false,"this ID has been occupied!");
+        }
+        commodity.ID = ID;
+        commodity.Name = Name;
+        commodity.value = value;
+        return (true,"success");
+    }
+    
     function Queryclientbalance(bytes32 ID) returns(bool,bytes32,bytes32,uint[],uint){
         Client client = clientMap[ID];
         return (true,"Success",client.Name,client.pointbalances,client.unionpaybalance);
     }
     
-    function exchangeMoneyToPoints(bytes32 ID,uint amount,uint n) returns(bool,bytes32){
-        Client client = clientMap[ID];
-        client.unionpaybalance -= amount;
-        client.pointbalances[n-1] += amount;
-        return (true,"success");
+    function pointstransaction(bytes32 ID1, uint n, bytes32 ID2) returns(bool, bytes32){
+        Client client1 = clientMap[ID1];
+        Commodity commodity = commodityMap[ID2];
+        client1.pointbalances[n-1] -= commodity.value;
+        return (true,"Purchase succeeded");
     }
     
     function exchangepoints(bytes32 ID1, uint amount1, uint n, bytes32 ID2, uint amount2, uint m) returns(bool, bytes32){
@@ -133,11 +136,12 @@ contract Digitalpoint {
         client2.pointbalances[m-1] -= amount2;
         return (true,"success");
     }
-
-    function pointstransaction(bytes32 ID1, uint n, bytes32 ID2) returns(bool, bytes32){
-        Client client1 = clientMap[ID1];
-        Commodity commodity = commodityMap[ID2];
-        client1.pointbalances[n-1] -= commodity.value;
-        return (true,"Purchase succeeded");
+    
+    function exchangeMoneyToPoints(bytes32 ID,uint amount,uint n) returns(bool,bytes32){
+        Client client = clientMap[ID];
+        client.unionpaybalance -= amount;
+        client.pointbalances[n-1] += amount;
+        return (true,"success");
     }
+    
 }
